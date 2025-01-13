@@ -10,4 +10,11 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\MailCrafter.Core\Domain\Domain.csproj" />
+    <ProjectReference Include="..\..\MailCrafter.Core\Repositories\Repositories.csproj" />
+    <ProjectReference Include="..\..\MailCrafter.Core\Services\Services.csproj" />
+    <ProjectReference Include="..\..\MailCrafter.Core\Utils\Utils.csproj" />
+  </ItemGroup>
 </Project>
