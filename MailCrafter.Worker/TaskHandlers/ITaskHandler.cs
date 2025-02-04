@@ -3,5 +3,5 @@
 namespace MailCrafter.Worker;
 public interface ITaskHandler
 {
-    void Handle(JsonElement payload);
+    Task HandleAsync(JsonElement payload);
 }
