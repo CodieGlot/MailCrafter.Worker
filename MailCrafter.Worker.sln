@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailCrafter.Worker", "MailCrafter.Worker\MailCrafter.Worker.csproj", "{FEE1A956-2D00-43B7-9947-1CED986AB809}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MailCrafter.Worker", "MailCrafter.Worker\MailCrafter.Worker.csproj", "{FEE1A956-2D00-43B7-9947-1CED986AB809}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{2C57C298-BE0F-44B3-A7BA-41CAA87790CC}"
 EndProject
@@ -14,6 +14,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "..\MailCrafter.Core\Services\Services.csproj", "{239E4158-A6B4-4740-8C9B-D754FEDBAE5D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utils", "..\MailCrafter.Core\Utils\Utils.csproj", "{13E36351-051D-45DB-8859-F21AEFEC8A9F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "..\MailCrafter.Core\UnitTests\UnitTests.csproj", "{0EE333FB-D008-48D5-964A-781B1F8F779C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,10 @@ Global
 		{13E36351-051D-45DB-8859-F21AEFEC8A9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13E36351-051D-45DB-8859-F21AEFEC8A9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13E36351-051D-45DB-8859-F21AEFEC8A9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EE333FB-D008-48D5-964A-781B1F8F779C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EE333FB-D008-48D5-964A-781B1F8F779C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EE333FB-D008-48D5-964A-781B1F8F779C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EE333FB-D008-48D5-964A-781B1F8F779C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
