@@ -11,13 +11,13 @@ public class Worker : BackgroundService
     private IConnection? _connection;
     private IChannel? _channel;
     private readonly Dictionary<string, ITaskHandler> _taskHandlers;
+    private readonly ILogger<Worker> _logger;
 
-    public Worker()
+    // Inject Task Handlers and Logger through DI
+    public Worker(IEnumerable<ITaskHandler> taskHandlers, ILogger<Worker> logger)
     {
-        _taskHandlers = new Dictionary<string, ITaskHandler>
-        {
-            { WorkerTaskNames.Send_Email, new SendEmailTaskHandler() },
-        };
+        _logger = logger;
+        _taskHandlers = taskHandlers.ToDictionary(handler => handler.TaskName);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -32,50 +32,89 @@ public class Worker : BackgroundService
 
         try
         {
-            _connection = await factory.CreateConnectionAsync();
-            _channel = await _connection.CreateChannelAsync();
+            // Retry logic for connecting to RabbitMQ
+            await ConnectToRabbitMqAsync(factory, stoppingToken);
 
-            await _channel.QueueDeclareAsync(queue: "task_queue", durable: true, exclusive: false, autoDelete: false, arguments: null);
-
+            // Start consuming messages from the queue
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
                 {
-                    var result = await _channel.BasicGetAsync("task_queue", autoAck: false);
+                    if (_channel == null)
+                    {
+                        _logger.LogError("Channel is null. Cannot consume messages.");
+                        break;
+                    }
+
+                    var result = await _channel.BasicGetAsync("worker_task_queue", autoAck: false);
                     if (result != null)
                     {
                         var message = Encoding.UTF8.GetString(result.Body.ToArray());
                         var task = JsonSerializer.Deserialize<WorkerTaskMessage>(message);
 
-                        await this.ProcessTaskAsync(task);
+                        await ProcessTaskAsync(task);
                         await _channel.BasicAckAsync(result.DeliveryTag, multiple: false);
                     }
                     else
                     {
-                        await Task.Delay(500, stoppingToken); // Wait before checking again
+                        await Task.Delay(500, stoppingToken);
                     }
                 }
                 catch (OperationInterruptedException ex)
                 {
-                    Console.WriteLine($"RabbitMQ error: {ex.Message}");
+                    _logger.LogError($"RabbitMQ error: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Error happens when executing task: {ex.Message}");
                 }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error initializing RabbitMQ: {ex.Message}");
+            _logger.LogError($"Error connecting to RabbitMQ: {ex.Message}");
         }
     }
 
-    private async Task ProcessTaskAsync(WorkerTaskMessage task)
+    // Retry logic for connecting to RabbitMQ
+    private async Task ConnectToRabbitMqAsync(ConnectionFactory factory, CancellationToken stoppingToken)
     {
-        if (_taskHandlers.TryGetValue(task.TaskName, out var handler))
+        int retryCount = 5;
+        while (retryCount > 0)
+        {
+            try
+            {
+                _connection = await factory.CreateConnectionAsync();
+                _channel = await _connection.CreateChannelAsync();
+
+                await _channel.QueueDeclareAsync(
+                    "worker_task_queue",
+                    durable: true,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null);
+                break;
+            }
+            catch (Exception ex)
+            {
+                retryCount--;
+                _logger.LogError($"Error connecting to RabbitMQ: {ex.Message}. Retries left: {retryCount}");
+                if (retryCount == 0)
+                    throw;
+                await Task.Delay(2000, stoppingToken);
+            }
+        }
+    }
+
+    private async Task ProcessTaskAsync(WorkerTaskMessage? task)
+    {
+        if (task != null && _taskHandlers.TryGetValue(task.TaskName, out var handler))
         {
             await handler.HandleAsync(task.Payload);
         }
         else
         {
-            Console.WriteLine($"Unknown task sent to the queue: {task.TaskName}");
+            _logger.LogWarning($"Unknown task sent to the queue: {task?.TaskName}");
         }
     }
 
