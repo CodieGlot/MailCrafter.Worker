@@ -6,18 +6,19 @@ public class SendBasicEmailTaskHandler : TaskHandlerBase<BasicEmailDetailsModel>
 {
     public override string TaskName => WorkerTaskNames.Send_Basic_Email;
 
-    private readonly IEmailSendingService _emailSendingService;
-
+    private readonly IServiceScopeFactory _serviceScopeFactory;
     public SendBasicEmailTaskHandler(
         ILogger<SendBasicEmailTaskHandler> logger,
-        IEmailSendingService emailSendingService)
+        IServiceScopeFactory serviceScopeFactory)
         : base(logger)
     {
-        _emailSendingService = emailSendingService;
+        _serviceScopeFactory = serviceScopeFactory;
     }
 
     protected override Task HandleTaskAsync(BasicEmailDetailsModel model)
     {
-        return _emailSendingService.SendBasicEmailsAsync(model);
+        using var scope = _serviceScopeFactory.CreateScope();
+        var emailSendingService = scope.ServiceProvider.GetRequiredService<IEmailSendingService>();
+        return emailSendingService.SendBasicEmailsAsync(model);
     }
 }

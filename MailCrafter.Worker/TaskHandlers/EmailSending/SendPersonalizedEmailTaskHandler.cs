@@ -6,18 +6,20 @@ public class SendPersonalizedEmailTaskHandler : TaskHandlerBase<PersonalizedEmai
 {
     public override string TaskName => WorkerTaskNames.Send_Personailized_Email;
 
-    private readonly IEmailSendingService _emailSendingService;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
     public SendPersonalizedEmailTaskHandler(
         ILogger<SendPersonalizedEmailTaskHandler> logger,
-        IEmailSendingService emailSendingService)
+        IServiceScopeFactory serviceScopeFactory)
         : base(logger)
     {
-        _emailSendingService = emailSendingService;
+        _serviceScopeFactory = serviceScopeFactory;
     }
 
     protected override Task HandleTaskAsync(PersonalizedEmailDetailsModel model)
     {
-        return _emailSendingService.SendPersonalizedEmailsAsync(model);
+        using var scope = _serviceScopeFactory.CreateScope();
+        var emailSendingService = scope.ServiceProvider.GetRequiredService<IEmailSendingService>();
+        return emailSendingService.SendPersonalizedEmailsAsync(model);
     }
 }
