@@ -9,6 +9,7 @@ namespace MailCrafter.Worker;
 public class Worker : BackgroundService
 {
     private readonly ConnectionFactory _connectionFactory;
+    private readonly string _queueName;
     private IConnection? _connection;
     private IChannel? _channel;
     private readonly Dictionary<string, ITaskHandler> _taskHandlers;
@@ -23,6 +24,7 @@ public class Worker : BackgroundService
         {
             Uri = new Uri(configuration["RabbitMQ:ConnectionURI"] ?? ""),
         };
+        _queueName = configuration["RabbitMQ:QueueName"] ?? string.Empty;
         _taskHandlers = taskHandlers.ToDictionary(handler => handler.TaskName);
     }
 
@@ -42,7 +44,7 @@ public class Worker : BackgroundService
                         break;
                     }
 
-                    var result = await _channel.BasicGetAsync("worker_task_queue", autoAck: false);
+                    var result = await _channel.BasicGetAsync(_queueName, autoAck: false);
                     if (result != null)
                     {
                         var message = Encoding.UTF8.GetString(result.Body.ToArray());
@@ -84,7 +86,7 @@ public class Worker : BackgroundService
                 _channel = await _connection.CreateChannelAsync();
 
                 await _channel.QueueDeclareAsync(
-                    "worker_task_queue",
+                    _queueName,
                     durable: true,
                     exclusive: false,
                     autoDelete: false,
