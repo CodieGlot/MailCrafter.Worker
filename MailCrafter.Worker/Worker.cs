@@ -8,34 +8,30 @@ namespace MailCrafter.Worker;
 
 public class Worker : BackgroundService
 {
+    private readonly ConnectionFactory _connectionFactory;
     private IConnection? _connection;
     private IChannel? _channel;
     private readonly Dictionary<string, ITaskHandler> _taskHandlers;
     private readonly ILogger<Worker> _logger;
 
-    // Inject Task Handlers and Logger through DI
-    public Worker(IEnumerable<ITaskHandler> taskHandlers, ILogger<Worker> logger)
+    public Worker(IEnumerable<ITaskHandler> taskHandlers,
+        IConfiguration configuration,
+        ILogger<Worker> logger)
     {
         _logger = logger;
+        _connectionFactory = new ConnectionFactory
+        {
+            Uri = new Uri(configuration["RabbitMQ:ConnectionURI"] ?? ""),
+        };
         _taskHandlers = taskHandlers.ToDictionary(handler => handler.TaskName);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var factory = new ConnectionFactory
-        {
-            HostName = "localhost",
-            Port = 5672,
-            UserName = "guest",
-            Password = "guest"
-        };
-
         try
         {
-            // Retry logic for connecting to RabbitMQ
-            await ConnectToRabbitMqAsync(factory, stoppingToken);
+            await this.ConnectToRabbitMqAsync(_connectionFactory, stoppingToken);
 
-            // Start consuming messages from the queue
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
