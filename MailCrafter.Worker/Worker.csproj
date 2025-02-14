@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
+	<RootNamespace>MailCrafter.Worker</RootNamespace>
+	<AssemblyName>MailCrafter.Worker</AssemblyName>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-MailCrafter.Worker-7bb4dd2f-b27f-41fb-bbe9-472714272298</UserSecretsId>
   </PropertyGroup>

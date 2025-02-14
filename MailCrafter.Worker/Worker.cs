@@ -74,7 +74,6 @@ public class Worker : BackgroundService
         }
     }
 
-    // Retry logic for connecting to RabbitMQ
     private async Task ConnectToRabbitMqAsync(ConnectionFactory factory, CancellationToken stoppingToken)
     {
         int retryCount = 5;
