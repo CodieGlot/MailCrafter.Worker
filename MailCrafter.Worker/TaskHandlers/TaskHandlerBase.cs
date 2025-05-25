@@ -5,9 +5,11 @@ public abstract class TaskHandlerBase<TModel> : ITaskHandler
 {
     public abstract string TaskName { get; }
 
-    private readonly ILogger _logger;
-    protected TaskHandlerBase(ILogger logger)
+    protected readonly IServiceScopeFactory _serviceScopeFactory;
+    protected readonly ILogger _logger;
+    protected TaskHandlerBase(IServiceScopeFactory serviceScopeFactory, ILogger logger)
     {
+        _serviceScopeFactory = serviceScopeFactory;
         _logger = logger;
     }
 
