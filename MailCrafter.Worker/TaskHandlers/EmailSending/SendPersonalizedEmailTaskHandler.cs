@@ -6,14 +6,12 @@ public class SendPersonalizedEmailTaskHandler : TaskHandlerBase<PersonalizedEmai
 {
     public override string TaskName => WorkerTaskNames.Send_Personailized_Email;
 
-    private readonly IServiceScopeFactory _serviceScopeFactory;
-
     public SendPersonalizedEmailTaskHandler(
         ILogger<SendPersonalizedEmailTaskHandler> logger,
         IServiceScopeFactory serviceScopeFactory)
-        : base(logger)
+        : base(serviceScopeFactory, logger)
     {
-        _serviceScopeFactory = serviceScopeFactory;
+
     }
 
     protected override Task HandleTaskAsync(PersonalizedEmailDetailsModel model)
