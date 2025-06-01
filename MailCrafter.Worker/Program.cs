@@ -2,7 +2,7 @@ using MailCrafter.Services;
 using MailCrafter.Worker;
 
 var configuration = new ConfigurationBuilder()
-    .AddJsonFile(@"C:\MailCrafter\Development\Core\appsettings.Development.json", optional: false, reloadOnChange: true)
+    .AddJsonFile(@"C:\MailCrafter\Development\Core\appsettings.Development.json", optional: true, reloadOnChange: true)
     .Build();
 
 var builder = Host.CreateApplicationBuilder(args);
